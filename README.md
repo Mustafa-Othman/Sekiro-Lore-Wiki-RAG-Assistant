@@ -3,6 +3,13 @@
 A retrieval-augmented chatbot that answers questions about *Sekiro: Shadows Die Twice* using
 only an indexed corpus of the game's wiki. Every answer cites the pages it came from.
 
+![The assistant answering an obscure lore question, with the cited wiki sections expanded](docs/screenshots/03-cited-sources.png)
+
+The question above is one of the three deliberately obscure evaluation questions. The model
+answers it from `Sculptor > Trivia` and `Sculptor > Description` and nothing else — with the
+same question asked without retrieval, it invents an "Ashina Blade" and a betrayal that never
+happened. See [Evaluation](#evaluation).
+
 The project has two tracks:
 
 | Track | What it does | Status |
@@ -58,7 +65,7 @@ Offline indexing pipeline (run once, in the notebook):
 |---|---|---|
 | Embeddings | `sentence-transformers` / `all-MiniLM-L6-v2` | 384-dim, fast on CPU, strong on short passages |
 | Vector store | ChromaDB (persistent, cosine) | Zero-infra local persistence + metadata filtering |
-| LLM | Ollama (`llama3` by default) | Fully local, no API key, swappable via env var |
+| LLM | Ollama (`qwen2.5-7B-instruct` Q4_K_M) | Fully local, no API key, swappable via env var |
 | Backend | FastAPI + Uvicorn | Async, typed Pydantic schemas, lifespan hooks |
 | Frontend | Streamlit | Chat UI in ~200 lines |
 | Detection | Ultralytics YOLO (optional) | Extended Track only |
@@ -94,6 +101,9 @@ sekiro-wiki-assistant/
 │   ├── app.py                  ← Streamlit chat UI
 │   ├── api_client.py           ← HTTP wrapper
 │   └── requirements.txt
+├── docs/
+│   ├── capture_screenshots.py  ← regenerates the screenshots below
+│   └── screenshots/
 ├── data/
 │   ├── raw/raw_wiki/           ← 219 source .txt files (NOT committed)
 │   └── images/                 ← screenshot frames + YOLO dataset (NOT committed)
@@ -152,7 +162,7 @@ Non-boss chunks carry an empty string (Chroma metadata cannot store `None`).
 - [Ollama](https://ollama.com/download) installed and running
 
 ```bash
-ollama pull llama3
+ollama pull qcwind/qwen2.5-7B-instruct-Q4_K_M
 ```
 
 ### 2. Backend
@@ -208,7 +218,7 @@ deterministic and do not require Ollama. First run takes ~1 minute (the embeddin
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `OLLAMA_MODEL` | `llama3` | Model name passed to Ollama |
+| `OLLAMA_MODEL` | `qcwind/qwen2.5-7B-instruct-Q4_K_M` | Exact Ollama tag. Any instruct model works |
 | `OLLAMA_HOST` | `http://localhost:11434` | Ollama endpoint |
 | `VECTOR_STORE_PATH` | `./data/vector_store` | Persisted Chroma directory |
 | `VECTOR_STORE_COLLECTION` | `sekiro_wiki` | Collection name |
@@ -242,7 +252,8 @@ curl http://localhost:8000/health
   "vector_store": { "loaded": true, "chunks": 627, "collection": "sekiro_wiki",
                     "boss_classes": ["corrupted_monk", "divine_dragon", "genichiro",
                                      "guardian_ape", "owl"] },
-  "llm": { "available": true, "model": "llama3", "host": "http://localhost:11434" },
+  "llm": { "available": true, "model": "qcwind/qwen2.5-7B-instruct-Q4_K_M",
+           "host": "http://localhost:11434" },
   "detection": { "enabled": false, "confidence_threshold": 0.5 }
 }
 ```
@@ -315,6 +326,51 @@ Retrieval was scored on the **top-4 window**, since that is what actually reache
 
 **Top-4 page coverage: 9/9 scoreable questions.**
 
+### Generated answers
+
+All ten questions were then answered by `qwen2.5-7B-instruct` (Q4_K_M) through the grounded
+prompt — retrieved context only, `temperature=0.1`.
+
+| # | Kind | Outcome |
+|---|---|---|
+| 1 | well-known | ✅ Correct, cites Genichiro's role and the Way of Tomoe |
+| 2 | well-known | ⛔ **Refused** — `"I don't know based on the provided sources."` (see below) |
+| 3 | well-known | ✅ Correct — Dung Throw, Perilous Grab, Loaded Spear, Terror management |
+| 4 | well-known | ⚠️ Mostly correct, but the last step describes the **Return** ending (see Failure 3) |
+| 5 | **obscure** | ⚠️ Vague but grounded — hedges with "suggesting a significant link" |
+| 6 | well-known | ✅ Correct — slaying the undying, Mortal Draw |
+| 7 | **obscure** | ✅ Correct — Orangutan, Kingfisher, Isshin, the severed arm |
+| 8 | well-known | ⛔ **Refused** despite both endings being in context (see Failure 3) |
+| 9 | well-known | ✅ Correct — Phoenix's Lilac Umbrella, Senpou Leaping Kicks |
+| 10 | **obscure** | ✅ Correct — Isshin's instruction, the Rejuvenating Sediment |
+
+The three obscure questions scored 3/3; the failures concentrate on the well-known ones, which
+is the opposite of the usual pattern and is discussed in the notebook.
+
+### The grounding proof: a no-retrieval baseline
+
+The strongest evidence that retrieval is doing the work is what happens without it. Asked the
+same three obscure questions with **no context supplied**, the base model fabricates a different
+game entirely:
+
+- **Q5** — Kuro, the Divine Heir (an infant, the child Wolf is sworn to protect), becomes
+  *"Kuro, the loyal and mysterious **dog companion**"*, then *"the reincarnation of a Dragon
+  Clan samurai named Kuro"*, supported by an invented *"Ashina Sadayoshi"*.
+- **Q7** — the Sculptor's real backstory (the shinobi Orangutan, his partner Kingfisher, the
+  severed arm) is absent. Instead: a fabricated *"Ashina Blade"*, a betrayal by his clan, and a
+  self-sacrifice against the Dragon.
+- **Q10** — Emma becomes *"the **wife of Genichiro**"*, kidnapped by *"the Ashigaru"*, from a
+  clan called *"the Ashin"*.
+
+None of that is in the corpus, and all of it is stated with complete confidence and no hedging —
+exactly the failure mode a RAG pipeline exists to prevent.
+
+Note also that Q5's fabrication is **not stable across runs**: an earlier execution of the
+notebook called Kuro *"the black wolf that accompanies the player character"*. The model is not
+recalling a wrong fact — it is inventing a different wrong one each time. That is the strongest
+possible argument for grounding retrieval: there is no memorised answer to fall back on, so
+without the corpus the model simply makes something up.
+
 ### Notes on the obscure questions
 
 - **Q5 (Kuro)** — reachable: `Kuro, The Divine Heir` ranks first. Not a question a base LLM
@@ -334,6 +390,29 @@ page.** The concept is only mentioned in passing on other pages, so no chunk sta
 and who carries it. Fixing it requires adding the missing page to `data/raw/raw_wiki/` and
 re-running the notebook. Raising `TOP_K`, adding BM25/hybrid search, or using a stronger
 encoder would all fail for the same reason: the passage does not exist in the index.
+
+Worth being precise about what this result *is*. The pipeline did not fail here — it **refused**,
+returning the exact refusal string rather than an answer about dragon-themed items or an
+invented explanation. Given context that cannot support the question, refusing is the correct
+outcome, and it is the same mechanism that protects every other question.
+
+### Failure 3: two generation-side errors
+
+Two failures are the model's, not the retriever's, and they are why the printed answers are the
+record rather than the automated term score.
+
+- **Q4 blended two endings.** The context contained the correct page (`Ending 2: Immortal
+  Severance`, rank 3), and the answer's step list is accurate until the final item, which says
+  Wolf *"choose[s] to give Kuro the Divine Dragon's Tears"*. That is the **Return** ending — in
+  Immortal Severance, Wolf uses the Mortal Blade on Kuro. With both ending pages in context, the
+  model merged them. Grounded but partially wrong, and invisible to a keyword check.
+- **Q8 refused a question the context could answer.** Both `Ending 1: Shura` (rank 1) and
+  `Ending 4: Return` (rank 3) were in context, yet the model returned the refusal string. It did
+  not synthesise across the two pages. Refusing invents nothing, so it is the safe failure — but
+  it is a recall miss, not a success.
+
+Both point the same way: retrieval quality is not the only variable, and a 7B Q4 quant is a
+modest generator. A larger model would likely fix Q4 and Q8 without any change to the pipeline.
 
 ---
 
@@ -355,6 +434,27 @@ encoder would all fail for the same reason: the passage does not exist in the in
 
 Generation cells degrade gracefully: if Ollama is not running they report
 `skipped: Ollama unavailable` and the rest of the notebook still completes.
+
+---
+
+## Screenshots
+
+Captured from the running app with the backend and Streamlit both live. Regenerate them with
+`python docs/capture_screenshots.py` while both servers are up (requires `pip install playwright`
+and `playwright install chromium` — a documentation tool, deliberately not in either
+`requirements.txt`).
+
+**The assistant answering, with citations expanded**
+
+![Grounded answer with cited sources expanded](docs/screenshots/03-cited-sources.png)
+
+**Empty state — connection status, corpus size, model, and the screenshot uploader**
+
+![Empty state showing backend status and corpus size](docs/screenshots/01-empty-state.png)
+
+Note the sidebar: *Backend ready*, 627 chunks across 5 boss classes, the live model name, and
+*boss detection: off* — the Extended Track detector is not trained yet, and the Core Track runs
+regardless.
 
 ---
 

@@ -34,7 +34,12 @@ notebooks/vector_store_export/
 
 # The copy the backend actually loads IS committed, which is what lets a fresh
 # clone run without re-executing the notebook. It is ~7 MB, comfortably under the
-# ~50 MB threshold; uncomment to exclude it if the corpus ever grows much larger.
+# ~50 MB threshold; uncomment the line below to exclude it if the corpus grows.
+#
+# Tradeoff: Chroma rewrites its sqlite on open, so merely starting the backend
+# shows the store as modified in `git status`. That churn is cosmetic -- content
+# and chunk count are unchanged. Verify before committing with:
+#   curl localhost:8000/health   # expect vector_store.chunks == 627
 # backend/data/vector_store/
 
 # --- Validation scratch ----------------------------------------------------

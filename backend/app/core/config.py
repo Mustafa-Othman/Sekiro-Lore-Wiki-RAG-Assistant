@@ -20,7 +20,9 @@ class Settings(BaseSettings):
     )
 
     # --- Local LLM ---------------------------------------------------------
-    ollama_model: str = "llama3"
+    # The exact Ollama tag, including any registry prefix and the ":latest" suffix
+    # omitted. Must match a pulled model or /health reports the LLM as unavailable.
+    ollama_model: str = "qcwind/qwen2.5-7B-instruct-Q4_K_M"
     ollama_host: str = "http://localhost:11434"
 
     # --- Vector store ------------------------------------------------------
