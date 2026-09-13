@@ -72,7 +72,7 @@ sekiro-wiki-assistant/
 ├── notebooks/
 │   ├── rag_pipeline.ipynb      ← graded deliverable, runs top-to-bottom
 │   ├── wiki_preprocess.py      ← cleaning + chunking module (imported by notebook)
-│   ├── vector_store_export/    ← persisted Chroma index (5.7 export)
+│   ├── vector_store_export/    ← Chroma index written by the notebook (build artifact)
 │   ├── eval_retrieval.json     ← measured retrieval results
 │   └── measure_retrieval.py    ← harness that produced eval_retrieval.json
 ├── backend/
