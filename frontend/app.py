@@ -147,7 +147,9 @@ def main() -> None:
         st.markdown(question)
 
     with st.chat_message("assistant"):
-        with st.spinner("Searching the wiki…"):
+        # Deliberately explicit that this is a local index lookup, not a web
+        # search -- "searching the wiki" reads like an internet request.
+        with st.spinner("Searching the local wiki index…"):
             try:
                 result = api_client.ask(question, image_bytes=image_bytes)
             except api_client.ApiClientError as exc:
