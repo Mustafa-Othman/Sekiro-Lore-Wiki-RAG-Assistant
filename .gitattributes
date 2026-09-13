@@ -1,0 +1,14 @@
+# Normalise line endings in the repository to LF. This project was developed on
+# Windows, and without this every file shows CRLF churn in diffs when cloned on
+# Linux/macOS -- and the Docker image (Linux) would otherwise receive CRLF shells
+# scripts.
+* text=auto eol=lf
+
+# Binary artifacts: never touch these.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.pt binary
+*.bin binary
+*.sqlite3 binary
+*.ipynb binary

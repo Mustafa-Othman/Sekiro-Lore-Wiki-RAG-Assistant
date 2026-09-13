@@ -1,0 +1,42 @@
+# --- Secrets ---------------------------------------------------------------
+.env
+*.env
+!.env.example
+
+# --- Python ----------------------------------------------------------------
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# --- Logs ------------------------------------------------------------------
+*.log
+
+# --- Raw corpus ------------------------------------------------------------
+# Scraped wiki text. Not committed (assignment constraint); the README documents
+# exactly which pages were used and where they came from so it can be re-fetched.
+data/raw/
+
+# --- Large media -----------------------------------------------------------
+# Gameplay footage and extracted frames are far too large for git.
+data/images/raw_footage/
+data/images/frames/
+data/images/dataset/
+
+# --- Local model artifacts -------------------------------------------------
+# Check the size before committing the vector store. It is small enough (~5 MB)
+# to commit for this corpus, which is what lets a fresh clone run the backend
+# without re-running the notebook. Uncomment if it ever grows past ~50 MB.
+# backend/data/vector_store/
+
+# --- Validation scratch ----------------------------------------------------
+notebooks/_validation_run.ipynb
+
+# --- OS / editor -----------------------------------------------------------
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

@@ -1,0 +1,8 @@
+# Frontend dependencies.
+#
+# Deliberately minimal: the UI is a thin HTTP client over the backend. No ML
+# libraries here -- the embedding model and vector store live server-side.
+
+streamlit==1.63.0
+requests==2.32.5
+python-dotenv==1.2.3

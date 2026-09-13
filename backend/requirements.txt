@@ -1,0 +1,33 @@
+# Backend dependencies.
+#
+# Deliberately unpinned majors are avoided: every entry below is pinned to the
+# version actually installed and tested on this machine (Python 3.14, CPU-only).
+
+# --- API -------------------------------------------------------------------
+fastapi==0.141.1
+uvicorn[standard]==0.52.4
+python-multipart==0.0.32
+pydantic==2.13.5
+pydantic-settings==2.15.0
+
+# --- RAG pipeline ----------------------------------------------------------
+# The embedding model MUST match the one used in notebooks/rag_pipeline.ipynb,
+# otherwise query embeddings are incompatible with the stored chunks.
+sentence-transformers==6.0.1
+chromadb==1.5.9
+
+# --- LLM -------------------------------------------------------------------
+ollama==0.6.2
+
+# --- Frontend-facing ------------------------------------------------------
+python-dotenv==1.2.3
+
+# --- Tests -----------------------------------------------------------------
+pytest==9.1.1
+httpx==0.28.1
+
+# --- Extended Track: YOLO boss detection -----------------------------------
+# Optional. Install to enable POST /query-image with a fine-tuned detector;
+# the backend runs the Core Track pipeline without it.
+# ultralytics==8.3.0
+# pillow==11.0.0

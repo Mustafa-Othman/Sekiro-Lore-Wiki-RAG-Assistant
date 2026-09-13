@@ -1,0 +1,34 @@
+# Keep the build context small: the raw corpus, the labeled image dataset and the
+# virtualenv are all large and none of them belong in the image.
+#
+# The one data directory the image does need -- backend/data/vector_store -- is
+# deliberately NOT excluded here.
+
+.git
+.gitignore
+
+# Secrets
+.env
+*.env
+!*.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# Raw data and datasets
+data/raw/
+data/images/
+*.zip
+
+# Notebooks and their validation artifacts
+notebooks/
+
+# Frontend is a separate deployable
+frontend/
+
+*.log
+README.md

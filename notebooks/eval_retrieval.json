@@ -1,0 +1,103 @@
+[
+  {
+    "qid": "Q1",
+    "kind": "well-known",
+    "question": "Who is Genichiro Ashina and what is his role in the story?",
+    "pages": [
+      "Genichiro Ashina",
+      "Genichiro Ashina, Second Encounter"
+    ],
+    "verdict": "HIT"
+  },
+  {
+    "qid": "Q2",
+    "kind": "well-known",
+    "question": "What is the Dragon's Heritage, and who carries it?",
+    "pages": [
+      "Dragon's Tally Board",
+      "Divine Dragon",
+      "Dragon Flash"
+    ],
+    "verdict": "CORPUS GAP"
+  },
+  {
+    "qid": "Q3",
+    "kind": "well-known",
+    "question": "How do you defeat the Guardian Ape?",
+    "pages": [
+      "Guardian Ape",
+      "Headless Ape"
+    ],
+    "verdict": "HIT"
+  },
+  {
+    "qid": "Q4",
+    "kind": "well-known",
+    "question": "What happens in the Immortal Severance ending?",
+    "pages": [
+      "Immortal Severance Scrap",
+      "Immortal Severance Text",
+      "Ending 2- Immortal Severance",
+      "Sekiro"
+    ],
+    "verdict": "HIT"
+  },
+  {
+    "qid": "Q5",
+    "kind": "obscure",
+    "question": "What is Kuro's connection to the Dragon's Heritage?",
+    "pages": [
+      "Kuro, The Divine Heir",
+      "Ending 4- Return"
+    ],
+    "verdict": "HIT"
+  },
+  {
+    "qid": "Q6",
+    "kind": "well-known",
+    "question": "What does the Mortal Blade do?",
+    "pages": [
+      "Mortal Blade",
+      "Mortal Draw"
+    ],
+    "verdict": "HIT"
+  },
+  {
+    "qid": "Q7",
+    "kind": "obscure",
+    "question": "Who is the Sculptor, and what is his backstory?",
+    "pages": [
+      "Sculptor"
+    ],
+    "verdict": "HIT"
+  },
+  {
+    "qid": "Q8",
+    "kind": "well-known",
+    "question": "What is the difference between the Shura ending and the Return ending?",
+    "pages": [
+      "Ending 1- Shura",
+      "Shura Storyteller",
+      "Ending 4- Return"
+    ],
+    "verdict": "HIT"
+  },
+  {
+    "qid": "Q9",
+    "kind": "well-known",
+    "question": "What prosthetic tool is effective against Lady Butterfly?",
+    "pages": [
+      "Lady Butterfly"
+    ],
+    "verdict": "HIT"
+  },
+  {
+    "qid": "Q10",
+    "kind": "obscure",
+    "question": "What is Emma's role in Genichiro's story?",
+    "pages": [
+      "Emma"
+    ],
+    "verdict": "HIT"
+  }
+]
