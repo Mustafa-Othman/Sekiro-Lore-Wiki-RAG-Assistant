@@ -102,21 +102,27 @@ class GenerationService:
         return True, "ok"
 
     @staticmethod
-    def build_prompt(question: str, chunks: list) -> str:
+    def build_prompt(question: str, chunks: list, detected_boss: str | None = None) -> str:
         """Render retrieved chunks as a numbered, citable context block."""
         blocks = []
-        for i, chunk in enumerate(chunks, 1):
+        idx = 1
+        if detected_boss:
+            blocks.append(f"[{idx}] (source: YOLO Image Detector)\nThe user uploaded a photo with this question. The automated image detector identified the boss in the photo as '{detected_boss}'.")
+            idx += 1
+            
+        for chunk in chunks:
             boss = f", boss={chunk.boss}" if chunk.boss else ""
-            blocks.append(f"[{i}] (source: {chunk.label}{boss})\n{chunk.text}")
+            blocks.append(f"[{idx}] (source: {chunk.label}{boss})\n{chunk.text}")
+            idx += 1
         return "Context passages:\n\n" + "\n\n".join(blocks) + f"\n\nQuestion: {question}"
 
-    def generate(self, question: str, chunks: list) -> str:
+    def generate(self, question: str, chunks: list, detected_boss: str | None = None) -> str:
         """One grounded generation call against the retrieved chunks."""
         response = self.client.chat(
             model=self._settings.ollama_model,
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": self.build_prompt(question, chunks)},
+                {"role": "user", "content": self.build_prompt(question, chunks, detected_boss)},
             ],
             options={"temperature": 0.1},
         )

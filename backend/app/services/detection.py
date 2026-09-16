@@ -13,10 +13,40 @@ from __future__ import annotations
 
 import io
 import logging
+import re
 
 from app.core.config import Settings
 
 logger = logging.getLogger(__name__)
+
+# Roboflow v2 / boss40 training uses native 16:9 frames (e.g. 1280x720).
+# Ultralytics letterboxes to imgsz at predict time -- that matches training,
+# so do NOT stretch uploads to a square (that was only for the old 640x640
+# stretched dataset5 geometry).
+TRAIN_IMGSZ = 640
+
+# YOLO dataset names (display strings) -> Chroma `boss` metadata tags used by
+# the Core Track index. Only the five wiki-tagged bosses filter retrieval;
+# every other class is returned as a stable slug so the UI/prompt still names
+# it, while retrieve() falls through to unfiltered search.
+_YOLO_TO_BOSS_TAG: dict[str, str] = {
+    "Corrupted Monk": "corrupted_monk",
+    "Divine Dragon": "divine_dragon",
+    "Genichiro Phase 1": "genichiro",
+    "Genichiro Phase 2": "genichiro",
+    "Guardian Ape": "guardian_ape",
+    "Owl": "owl",
+}
+
+
+def _slugify(name: str) -> str:
+    slug = re.sub(r"[^a-z0-9]+", "_", name.lower()).strip("_")
+    return slug or name
+
+
+def to_boss_tag(yolo_class_name: str) -> str:
+    """Map a YOLO class label to the retrieval / response boss string."""
+    return _YOLO_TO_BOSS_TAG.get(yolo_class_name, _slugify(yolo_class_name))
 
 
 class DetectionService:
@@ -70,13 +100,12 @@ class DetectionService:
         `YOLO_CONFIDENCE_THRESHOLD`.
 
         The returned class name matches the `boss` metadata value written by the
-        notebook, which is what makes the retrieval filter in
-        `app/services/generation.py` work.
+        notebook (for the five tagged bosses), which is what makes the retrieval
+        filter in `app/services/generation.py` work.
         """
         if not self.is_enabled:
             return None
 
-        import numpy as np
         from PIL import Image
 
         try:
@@ -85,7 +114,14 @@ class DetectionService:
             logger.warning("Uploaded file could not be decoded as an image")
             return None
 
-        results = self._model.predict(np.array(image), verbose=False)
+        # Pass the PIL image, NOT np.array(image).
+        #
+        # Ultralytics follows the OpenCV convention for array input and treats a
+        # numpy array as BGR, flipping the channels internally. A PIL image is
+        # taken as RGB and left alone. Handing it np.array(<RGB image>) therefore
+        # swaps red and blue with no error and no warning -- the model still
+        # returns confident boxes, just the wrong classes.
+        results = self._model.predict(image, imgsz=TRAIN_IMGSZ, verbose=False)
         if not results:
             return None
 
@@ -99,5 +135,5 @@ class DetectionService:
         if confidence < self._settings.yolo_confidence_threshold:
             return None
 
-        class_name = self._model.names[int(boxes.cls[best])]
-        return class_name, confidence
+        yolo_name = self._model.names[int(boxes.cls[best])]
+        return to_boss_tag(yolo_name), confidence

@@ -52,7 +52,7 @@ def health(request: Request) -> dict:
     }
 
 
-def _answer(question: str, retrieval, generation, boss: str | None) -> QueryResponse:
+def _answer(question: str, retrieval, generation, boss: str | None, detected_boss: str | None = None) -> QueryResponse:
     """Shared retrieve -> prompt -> generate path for both endpoints."""
     chunks = retrieval.retrieve(question, boss=boss)
 
@@ -63,7 +63,7 @@ def _answer(question: str, retrieval, generation, boss: str | None) -> QueryResp
         )
 
     try:
-        answer = generation.generate(question, chunks)
+        answer = generation.generate(question, chunks, detected_boss=detected_boss)
     except Exception as exc:
         logger.exception("Generation failed")
         raise HTTPException(
@@ -89,7 +89,7 @@ def query(payload: QueryRequest, request: Request) -> QueryResponse:
     """Answer a question from the Sekiro wiki corpus, with cited sources."""
     retrieval, generation, _ = _services(request)
     logger.info("Query: %s", payload.question)
-    return _answer(payload.question, retrieval, generation, boss=None)
+    return _answer(payload.question, retrieval, generation, boss=None, detected_boss=None)
 
 
 @router.post(
@@ -122,6 +122,7 @@ async def query_with_image(
 
     detection_result: DetectionResult | None = None
     raw = detection.detect(image_bytes) if detection.is_enabled else None
+    detected_boss_name = None
 
     if raw is not None:
         boss_class, confidence = raw
@@ -136,6 +137,7 @@ async def query_with_image(
             confidence=confidence,
             used_for_retrieval=filter_boss is not None,
         )
+        detected_boss_name = boss_class
         logger.info(
             "Detected %s (%.2f) -- retrieval filter %s",
             boss_class, confidence, "applied" if filter_boss else "skipped",
@@ -144,6 +146,6 @@ async def query_with_image(
         filter_boss = None
         logger.info("No confident detection -- standard similarity search")
 
-    response = _answer(question.strip(), retrieval, generation, boss=filter_boss)
+    response = _answer(question.strip(), retrieval, generation, boss=filter_boss, detected_boss=detected_boss_name)
     response.detection = detection_result
     return response

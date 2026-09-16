@@ -25,7 +25,7 @@ def main() -> int:
         page.wait_for_selector('[data-testid="stChatInput"] textarea', timeout=90_000)
         page.wait_for_timeout(4_000)
 
-        # Empty state: sidebar status + welcome copy.
+        # Empty state: the left rail's status footer + welcome copy.
         page.screenshot(path=str(OUT / "01-empty-state.png"), full_page=True)
         print("captured 01-empty-state.png")
 
@@ -35,6 +35,17 @@ def main() -> int:
         box.fill(QUESTION)
         box.press("Enter")
         print(f"asked: {QUESTION}")
+
+        # While the answer is in flight the assistant message shows the
+        # "searching" marker. Grab it here: this is the in-between state, and
+        # the avatar has to stay at full opacity in it.
+        try:
+            page.wait_for_selector(".sg-searching", state="visible", timeout=120_000)
+            page.wait_for_timeout(400)
+            page.screenshot(path=str(OUT / "05-thinking.png"), full_page=True)
+            print("captured 05-thinking.png")
+        except Exception as exc:
+            print(f"thinking shot skipped: {exc.__class__.__name__}")
 
         # The answer arrives with a "Sources (n)" expander. A local 7B on CPU is
         # slow, so allow generously; the spinner shows meanwhile.
