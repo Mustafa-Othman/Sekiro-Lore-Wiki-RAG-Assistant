@@ -3,7 +3,7 @@
 A retrieval-augmented chatbot that answers questions about *Sekiro: Shadows Die Twice* using
 only an indexed corpus of the game's wiki. Every answer cites the pages it came from.
 
-![The assistant answering an obscure lore question, with the cited wiki sections expanded](docs/03-cited-sources.png)
+![The assistant answering an obscure lore question, with the cited wiki sections expanded](docs/screenshots/03-cited-sources.png)
 
 Asked without retrieval, the same question invents an "Ashina Blade" and a betrayal that never
 happened. With retrieval, the citations point at the real page. See [Evaluation](#evaluation).
@@ -270,13 +270,13 @@ in the response, including a below-threshold miss (`used_for_retrieval: false`).
 
 ## Screenshots
 
-![Empty state](docs/01-empty-state.png)
+![Empty state](docs/screenshots/01-empty-state.png)
 
 The left rail (Conversations, Boss roster, status footer) is custom markup, not Streamlit's
 sidebar — nothing about it round-trips through Python, so switching conversations never
 flashes or reloads the page.
 
-![Assistant avatar fully visible while the local index is searched](docs/05-thinking.png)
+![Assistant avatar fully visible while the local index is searched](docs/screenshots/05-thinking.png)
 
 Regenerate both with `python docs/capture_screenshots.py` (needs `playwright`, not in either
 `requirements.txt` — a docs-only tool).
