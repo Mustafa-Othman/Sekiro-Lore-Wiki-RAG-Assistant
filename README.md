@@ -85,7 +85,7 @@ chunks (400/75 tokens, min 40). Covers bosses, endings, items, prosthetics, comb
 locations and lore. Full per-page breakdown: [`CORPUS.md`](CORPUS.md).
 
 Boss-page chunks are tagged with the matching YOLO class name so retrieval can be filtered to
-the boss on screen:
+the boss on screen example:
 
 | Class | Tagged chunks |
 |---|---|
@@ -128,7 +128,7 @@ IoU 0.34–0.46 against a 0.43 ceiling) — brought the imbalance down to 3.4:1:
 | valid | 108 | 95 |
 | test | 38 | 32 |
 
-Per-class instances: `owl` 317, `genichiro` 119, `corrupted_monk` 104, `guardian_ape` 97,
+Per-class instances example: `owl` 317, `genichiro` 119, `corrupted_monk` 104, `guardian_ape` 97,
 `divine_dragon` 93.
 
 **5. Labelling.** Boxes were drawn by hand with a local tkinter tool
@@ -141,6 +141,8 @@ merged into the final dataset above.
 bar — untested against a different playthrough. A second recording session is the fix, and the
 pipeline (`extract_frames.py` → `select_to_label.py` → `label_tool.py` → `build_dataset.py` →
 retrain) takes one without changes.
+
+the dataset is on :https://universe.roboflow.com/mostafa-osman-36d4i/sekiro-boss-detection-cap-40
 
 ---
 
