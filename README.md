@@ -3,8 +3,7 @@
 A retrieval-augmented chatbot that answers questions about *Sekiro: Shadows Die Twice* using
 only an indexed corpus of the game's wiki. Every answer cites the pages it came from.
 
-![The assistant answering an obscure lore question, with the cited wiki sections expanded](c
-)
+![The assistant answering an obscure lore question, with the cited wiki sections expanded](docs/screenshots/03-cited-sources.png)
 
 Asked without retrieval, the same question invents an "Ashina Blade" and a betrayal that never
 happened. With retrieval, the citations point at the real page. See [Evaluation](#evaluation).
