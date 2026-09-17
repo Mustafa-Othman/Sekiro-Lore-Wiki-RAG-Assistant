@@ -270,13 +270,13 @@ in the response, including a below-threshold miss (`used_for_retrieval: false`).
 
 ## Screenshots
 
-![Empty state](docs/01-empty-state.png)
+![Empty state](docs/screenshots/01-empty-state.png)
 
 The left rail (Conversations, Boss roster, status footer) is custom markup, not Streamlit's
 sidebar — nothing about it round-trips through Python, so switching conversations never
 flashes or reloads the page.
 
-![Assistant avatar fully visible while the local index is searched](docs/05-thinking.png)
+![Assistant avatar fully visible while the local index is searched](docs/screenshots/05-thinking.png)
 
 Regenerate both with `python docs/capture_screenshots.py` (needs `playwright`, not in either
 `requirements.txt` — a docs-only tool).
