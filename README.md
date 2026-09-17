@@ -3,7 +3,8 @@
 A retrieval-augmented chatbot that answers questions about *Sekiro: Shadows Die Twice* using
 only an indexed corpus of the game's wiki. Every answer cites the pages it came from.
 
-![The assistant answering an obscure lore question, with the cited wiki sections expanded](docs/screenshots/03-cited-sources.png)
+![The assistant answering an obscure lore question, with the cited wiki sections expanded](c
+)
 
 Asked without retrieval, the same question invents an "Ashina Blade" and a betrayal that never
 happened. With retrieval, the citations point at the real page. See [Evaluation](#evaluation).
@@ -85,7 +86,7 @@ chunks (400/75 tokens, min 40). Covers bosses, endings, items, prosthetics, comb
 locations and lore. Full per-page breakdown: [`CORPUS.md`](CORPUS.md).
 
 Boss-page chunks are tagged with the matching YOLO class name so retrieval can be filtered to
-the boss on screen example:
+the boss on screen:
 
 | Class | Tagged chunks |
 |---|---|
@@ -128,7 +129,7 @@ IoU 0.34–0.46 against a 0.43 ceiling) — brought the imbalance down to 3.4:1:
 | valid | 108 | 95 |
 | test | 38 | 32 |
 
-Per-class instances example: `owl` 317, `genichiro` 119, `corrupted_monk` 104, `guardian_ape` 97,
+Per-class instances: `owl` 317, `genichiro` 119, `corrupted_monk` 104, `guardian_ape` 97,
 `divine_dragon` 93.
 
 **5. Labelling.** Boxes were drawn by hand with a local tkinter tool
@@ -141,8 +142,6 @@ merged into the final dataset above.
 bar — untested against a different playthrough. A second recording session is the fix, and the
 pipeline (`extract_frames.py` → `select_to_label.py` → `label_tool.py` → `build_dataset.py` →
 retrain) takes one without changes.
-
-the dataset is on :https://universe.roboflow.com/mostafa-osman-36d4i/sekiro-boss-detection-cap-40
 
 ---
 
@@ -272,13 +271,13 @@ in the response, including a below-threshold miss (`used_for_retrieval: false`).
 
 ## Screenshots
 
-![Empty state](docs/screenshots/01-empty-state.png)
+![Empty state](docs/01-empty-state.png)
 
 The left rail (Conversations, Boss roster, status footer) is custom markup, not Streamlit's
 sidebar — nothing about it round-trips through Python, so switching conversations never
 flashes or reloads the page.
 
-![Assistant avatar fully visible while the local index is searched](docs/screenshots/05-thinking.png)
+![Assistant avatar fully visible while the local index is searched](docs/05-thinking.png)
 
 Regenerate both with `python docs/capture_screenshots.py` (needs `playwright`, not in either
 `requirements.txt` — a docs-only tool).
